@@ -60,50 +60,32 @@
       <bpmn:messageEventDefinition />
     </bpmn:intermediateCatchEvent>
   </bpmn:process>
-  <bpmn:process id="vorselektion" name="Vorselektion Auslandsemester" isExecutable="true">
+  <bpmn:process id="vorselektion" name="Vorselektion Auslandsemester" isExecutable="false">
     <bpmn:laneSet id="LaneSet_1goq112">
       <bpmn:lane id="Lane_Student" name="Student">
         <bpmn:flowNodeRef>StartEvent_AntragEingetroffen</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Automatisch" name="Automatisch">
-        <bpmn:flowNodeRef>ServiceTask_AkkreditierungDerUniversitatErmitteln</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>ServiceTask_NotendurchschnittErmitteln</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>BusinessRuleTask_EignungswertErmitteln</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>ExclusiveGateway_FormalZugelassen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>ExclusiveGateway_0a4j2vt</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>ExclusiveGateway_InhaltlichZugelassen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_VorselektionErfolgreichAbgeschlossen</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_AntragAbgelehnt</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>SendTask_AblehnungMitteilen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ServiceTask_AkkreditierungDerUniversitatErmitteln</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ServiceTask_NotendurchschnittErmitteln</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>BusinessRuleTask_EignungswertErmitteln</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>SendTask_PositivenVorentscheidMitteilen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SendTask_AblehnungMitteilen</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Studiengangsekr" name="Studiengangsekr.">
         <bpmn:flowNodeRef>UserTask_ZulassungPrufen</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="SequenceFlow_1l3awth" sourceRef="StartEvent_AntragEingetroffen" targetRef="ServiceTask_AkkreditierungDerUniversitatErmitteln" />
-    <bpmn:serviceTask id="ServiceTask_AkkreditierungDerUniversitatErmitteln" name="Akkreditierung der Universität ermitteln" camunda:delegateExpression="${checkAccreditation}">
-      <bpmn:incoming>SequenceFlow_1l3awth</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_06ezboy</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_NotendurchschnittErmitteln" name="Noten-durchschnitt ermitteln" camunda:delegateExpression="${getGradesMean}">
-      <bpmn:incoming>SequenceFlow_06ezboy</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0pw8chm</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:businessRuleTask id="BusinessRuleTask_EignungswertErmitteln" name="Eignungswert ermitteln" camunda:resultVariable="suitabilityValue" camunda:decisionRef="getSuitabilityValue" camunda:mapDecisionResult="singleEntry">
-      <bpmn:incoming>SequenceFlow_0pw8chm</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0um28ge</bpmn:outgoing>
-    </bpmn:businessRuleTask>
     <bpmn:sequenceFlow id="SequenceFlow_06ezboy" sourceRef="ServiceTask_AkkreditierungDerUniversitatErmitteln" targetRef="ServiceTask_NotendurchschnittErmitteln" />
     <bpmn:sequenceFlow id="SequenceFlow_0pw8chm" sourceRef="ServiceTask_NotendurchschnittErmitteln" targetRef="BusinessRuleTask_EignungswertErmitteln" />
     <bpmn:sequenceFlow id="SequenceFlow_0um28ge" sourceRef="BusinessRuleTask_EignungswertErmitteln" targetRef="ExclusiveGateway_FormalZugelassen" />
-    <bpmn:startEvent id="StartEvent_AntragEingetroffen" name="Antrag eingetroffen" camunda:asyncAfter="true">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="studentId" label="Studentenkürzel" type="string" />
-          <camunda:formField id="universityName" label="Gewünschte Universität" type="string" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_AntragEingetroffen" name="Antrag eingetroffen">
       <bpmn:outgoing>SequenceFlow_1l3awth</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_FormalZugelassen" name="Eignungswert?">
@@ -111,28 +93,9 @@
       <bpmn:outgoing>SequenceFlow_Ja</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_Nein1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_Ja" name="&#62;= 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="UserTask_ZulassungPrufen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suitabilityValue&gt;=0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_Nein1" name="&#60; 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="ExclusiveGateway_0a4j2vt">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suitabilityValue&lt;0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:userTask id="UserTask_ZulassungPrufen" name="Zulassung prüfen" camunda:asyncAfter="true" camunda:candidateGroups="sekr">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="studentId" label="Student" type="string">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="suitabilityValue" label="Eignungswert" type="long">
-            <camunda:validation>
-              <camunda:constraint name="readonly" />
-            </camunda:validation>
-          </camunda:formField>
-          <camunda:formField id="approved" label="Zugelassen?" type="boolean" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:sequenceFlow id="SequenceFlow_Ja" name="&#62;= 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="UserTask_ZulassungPrufen" />
+    <bpmn:sequenceFlow id="SequenceFlow_Nein1" name="&#60; 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="ExclusiveGateway_0a4j2vt" />
+    <bpmn:userTask id="UserTask_ZulassungPrufen" name="Zulassung prüfen" camunda:candidateGroups="sekr">
       <bpmn:incoming>SequenceFlow_Ja</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0vax1t1</bpmn:outgoing>
     </bpmn:userTask>
@@ -147,14 +110,10 @@
       <bpmn:outgoing>SequenceFlow_Nein</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_Ja1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_Nein" name="Nein" sourceRef="ExclusiveGateway_InhaltlichZugelassen" targetRef="ExclusiveGateway_0a4j2vt">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!approved}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_Nein" name="Nein" sourceRef="ExclusiveGateway_InhaltlichZugelassen" targetRef="ExclusiveGateway_0a4j2vt" />
     <bpmn:sequenceFlow id="SequenceFlow_0huyev5" sourceRef="ExclusiveGateway_0a4j2vt" targetRef="SendTask_AblehnungMitteilen" />
     <bpmn:sequenceFlow id="SequenceFlow_0mptx3g" sourceRef="SendTask_AblehnungMitteilen" targetRef="EndEvent_AntragAbgelehnt" />
-    <bpmn:sequenceFlow id="SequenceFlow_Ja1" name="Ja" sourceRef="ExclusiveGateway_InhaltlichZugelassen" targetRef="SendTask_PositivenVorentscheidMitteilen">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_Ja1" name="Ja" sourceRef="ExclusiveGateway_InhaltlichZugelassen" targetRef="SendTask_PositivenVorentscheidMitteilen" />
     <bpmn:sequenceFlow id="SequenceFlow_16y4hso" sourceRef="SendTask_PositivenVorentscheidMitteilen" targetRef="EndEvent_VorselektionErfolgreichAbgeschlossen" />
     <bpmn:endEvent id="EndEvent_VorselektionErfolgreichAbgeschlossen" name="Vorselektion erfolgreich abgeschlossen">
       <bpmn:incoming>SequenceFlow_16y4hso</bpmn:incoming>
@@ -162,14 +121,26 @@
     <bpmn:endEvent id="EndEvent_AntragAbgelehnt" name="Antrag&#10;abgelehnt">
       <bpmn:incoming>SequenceFlow_0mptx3g</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sendTask id="SendTask_AblehnungMitteilen" name="Ablehnung mitteilen" camunda:delegateExpression="${sendDecision}">
-      <bpmn:incoming>SequenceFlow_0huyev5</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0mptx3g</bpmn:outgoing>
-    </bpmn:sendTask>
-    <bpmn:sendTask id="SendTask_PositivenVorentscheidMitteilen" name="Positiven Vorentscheid mitteilen" camunda:delegateExpression="${sendDecision}">
+    <bpmn:task id="ServiceTask_AkkreditierungDerUniversitatErmitteln" name="Akkreditierung der Universität ermitteln">
+      <bpmn:incoming>SequenceFlow_1l3awth</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_06ezboy</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="ServiceTask_NotendurchschnittErmitteln" name="Noten-durchschnitt ermitteln">
+      <bpmn:incoming>SequenceFlow_06ezboy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0pw8chm</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="BusinessRuleTask_EignungswertErmitteln" name="Eignungswert ermitteln">
+      <bpmn:incoming>SequenceFlow_0pw8chm</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0um28ge</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="SendTask_PositivenVorentscheidMitteilen" name="Positiven Vorentscheid mitteilen">
       <bpmn:incoming>SequenceFlow_Ja1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_16y4hso</bpmn:outgoing>
-    </bpmn:sendTask>
+    </bpmn:task>
+    <bpmn:task id="SendTask_AblehnungMitteilen" name="Ablehnung mitteilen">
+      <bpmn:incoming>SequenceFlow_0huyev5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0mptx3g</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmn:process id="Process_0o1rp2s" isExecutable="false">
     <bpmn:laneSet id="LaneSet_1t8vd1u">
@@ -304,23 +275,14 @@
         <di:waypoint x="320" y="730" />
         <di:waypoint x="360" y="730" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_1bhiv2b_di" bpmnElement="ServiceTask_AkkreditierungDerUniversitatErmitteln">
-        <dc:Bounds x="360" y="690" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_06ezboy_di" bpmnElement="SequenceFlow_06ezboy">
         <di:waypoint x="460" y="730" />
         <di:waypoint x="510" y="730" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_12lls95_di" bpmnElement="ServiceTask_NotendurchschnittErmitteln">
-        <dc:Bounds x="510" y="690" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0pw8chm_di" bpmnElement="SequenceFlow_0pw8chm">
         <di:waypoint x="610" y="730" />
         <di:waypoint x="660" y="730" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="BusinessRuleTask_1h1dcae_di" bpmnElement="BusinessRuleTask_EignungswertErmitteln">
-        <dc:Bounds x="660" y="690" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0olg40f_di" bpmnElement="ExclusiveGateway_FormalZugelassen" isMarkerVisible="true">
         <dc:Bounds x="799" y="705" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -339,9 +301,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_0eqip7a_di" bpmnElement="Lane_Studiengangsekr" isHorizontal="true" bioc:stroke="rgb(30, 136, 229)" bioc:fill="rgb(187, 222, 251)">
         <dc:Bounds x="190" y="920" width="1179" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="SendTask_0vze4j8_di" bpmnElement="SendTask_AblehnungMitteilen">
-        <dc:Bounds x="1138" y="690" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0kta3xb_di" bpmnElement="EndEvent_AntragAbgelehnt">
         <dc:Bounds x="1295" y="712" width="36" height="36" />
@@ -382,9 +341,6 @@
           <dc:Bounds x="966" y="789" width="23" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="SendTask_175oo34_di" bpmnElement="SendTask_PositivenVorentscheidMitteilen">
-        <dc:Bounds x="1069" y="800" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1czcydd_di" bpmnElement="EndEvent_VorselektionErfolgreichAbgeschlossen">
         <dc:Bounds x="1295" y="822" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -507,6 +463,21 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="241" y="596" width="58" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1cvf8t4_di" bpmnElement="ServiceTask_AkkreditierungDerUniversitatErmitteln">
+        <dc:Bounds x="360" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0lgndm8_di" bpmnElement="ServiceTask_NotendurchschnittErmitteln">
+        <dc:Bounds x="510" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0p00n1f_di" bpmnElement="BusinessRuleTask_EignungswertErmitteln">
+        <dc:Bounds x="660" y="690" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0yzdxrx_di" bpmnElement="SendTask_PositivenVorentscheidMitteilen">
+        <dc:Bounds x="1069" y="800" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1747zcm_di" bpmnElement="SendTask_AblehnungMitteilen">
+        <dc:Bounds x="1138" y="690" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
