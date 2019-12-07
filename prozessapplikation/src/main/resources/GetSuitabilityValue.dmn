@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="Definitions_0yvzk44" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="3.1.0">
+  <decision id="getSuitabilityValue" name="Entscheidungswert ermitteln">
+    <decisionTable id="decisionTable_1" hitPolicy="COLLECT" aggregation="SUM">
+      <input id="input_1" label="Akkreditierung">
+        <inputExpression id="inputExpression_1" typeRef="string">
+          <text>accreditation</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_06sydbd" label="Notenschnitt">
+        <inputExpression id="LiteralExpression_0m1qr1i" typeRef="double">
+          <text>gradesMean</text>
+        </inputExpression>
+      </input>
+      <output id="output_1" label="Eignungswert" name="result" typeRef="integer" />
+      <rule id="DecisionRule_1felv70">
+        <inputEntry id="UnaryTests_1912ozo">
+          <text>"Unbekannt"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0t4oz60">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1aen87x">
+          <text>-2</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1cr7pbi">
+        <inputEntry id="UnaryTests_0ddx170">
+          <text>"Keine"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0zvc1ej">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0zb9iiu">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0pasdyt">
+        <inputEntry id="UnaryTests_1vam5gm">
+          <text>"FIBAA"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1rhraou">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1vt0sp8">
+          <text>1</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0dmgp49">
+        <inputEntry id="UnaryTests_1nwxlj3">
+          <text>"AACSB"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0dxymw0">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0p7havx">
+          <text>2</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1mxzou2">
+        <inputEntry id="UnaryTests_09dmqh6">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_109aqxe">
+          <text>&lt;4</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0w4zh6g">
+          <text>-3</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1r81bvi">
+        <inputEntry id="UnaryTests_0qvaj08">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1bssf56">
+          <text>[4..5]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1re243u">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1bni1cu">
+        <inputEntry id="UnaryTests_0h9gykp">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_12qfp03">
+          <text>&gt;5</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1u25jtx">
+          <text>3</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
