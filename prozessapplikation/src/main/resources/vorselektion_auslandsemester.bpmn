@@ -7,9 +7,9 @@
     <bpmn:messageFlow id="MessageFlow_0e55svb" sourceRef="Task_AntragsformularAusfullen" targetRef="StartEvent_AntragEingetroffen" />
     <bpmn:messageFlow id="MessageFlow_1ysu7pf" sourceRef="SendTask_AblehnungMitteilen" targetRef="IntermediateCatchEvent_NegativenVorentscheidErhalten" />
     <bpmn:messageFlow id="MessageFlow_1exepn1" sourceRef="SendTask_PositivenVorentscheidMitteilen" targetRef="IntermediateCatchEvent_PositivenVorentscheidErhalten" />
-    <bpmn:messageFlow id="MessageFlow_0yhzzje" sourceRef="UserTask_ZulassungUberprufen" targetRef="StartEvent_FormalAkzeptierterAntragEingetroffen" />
-    <bpmn:messageFlow id="MessageFlow_19u5nth" sourceRef="UserTask_ZulassungUberprufen" targetRef="Task_AntragsAngabenLesen" />
-    <bpmn:messageFlow id="MessageFlow_11lnphh" sourceRef="Task_PrufergebnisFesthalten" targetRef="UserTask_ZulassungUberprufen" />
+    <bpmn:messageFlow id="MessageFlow_0yhzzje" sourceRef="UserTask_ZulassungPrufen" targetRef="StartEvent_FormalAkzeptierterAntragEingetroffen" />
+    <bpmn:messageFlow id="MessageFlow_19u5nth" sourceRef="UserTask_ZulassungPrufen" targetRef="Task_AntragsAngabenLesen" />
+    <bpmn:messageFlow id="MessageFlow_11lnphh" sourceRef="Task_PrufergebnisFesthalten" targetRef="UserTask_ZulassungPrufen" />
   </bpmn:collaboration>
   <bpmn:process id="Process_1iraa4e" isExecutable="false">
     <bpmn:laneSet id="LaneSet_0x7leqr">
@@ -78,7 +78,7 @@
         <bpmn:flowNodeRef>SendTask_PositivenVorentscheidMitteilen</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Studiengangsekr" name="Studiengangsekr.">
-        <bpmn:flowNodeRef>UserTask_ZulassungUberprufen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>UserTask_ZulassungPrufen</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:sequenceFlow id="SequenceFlow_1l3awth" sourceRef="StartEvent_AntragEingetroffen" targetRef="ServiceTask_AkkreditierungDerUniversitatErmitteln" />
@@ -111,13 +111,13 @@
       <bpmn:outgoing>SequenceFlow_Ja</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_Nein1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_Ja" name="&#62;= 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="UserTask_ZulassungUberprufen">
+    <bpmn:sequenceFlow id="SequenceFlow_Ja" name="&#62;= 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="UserTask_ZulassungPrufen">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suitabilityValue&gt;=0}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_Nein1" name="&#60; 0" sourceRef="ExclusiveGateway_FormalZugelassen" targetRef="ExclusiveGateway_0a4j2vt">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suitabilityValue&lt;0}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="UserTask_ZulassungUberprufen" name="Zulassung überprüfen" camunda:asyncAfter="true">
+    <bpmn:userTask id="UserTask_ZulassungPrufen" name="Zulassung prüfen" camunda:asyncAfter="true" camunda:candidateGroups="sekr">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="studentId" label="Student" type="string">
@@ -136,7 +136,7 @@
       <bpmn:incoming>SequenceFlow_Ja</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0vax1t1</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0vax1t1" sourceRef="UserTask_ZulassungUberprufen" targetRef="ExclusiveGateway_InhaltlichZugelassen" />
+    <bpmn:sequenceFlow id="SequenceFlow_0vax1t1" sourceRef="UserTask_ZulassungPrufen" targetRef="ExclusiveGateway_InhaltlichZugelassen" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0a4j2vt">
       <bpmn:incoming>SequenceFlow_Nein</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_Nein1</bpmn:incoming>
@@ -361,7 +361,7 @@
           <dc:Bounds x="833" y="763" width="23" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_0nw4k03_di" bpmnElement="UserTask_ZulassungUberprufen">
+      <bpmndi:BPMNShape id="UserTask_0nw4k03_di" bpmnElement="UserTask_ZulassungPrufen">
         <dc:Bounds x="864" y="940" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0ua3y6i_di" bpmnElement="ExclusiveGateway_InhaltlichZugelassen" isMarkerVisible="true">
